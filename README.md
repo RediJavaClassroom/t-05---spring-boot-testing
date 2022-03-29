@@ -1,7 +1,8 @@
 # Spring boot Testing
 
 ## What You Will Build
-Unit and integration testing for the greeting application you have built before.
+Unit and integration testing for the greeting application you have built before. also we will learn
+how to integrate API clients into our application!
 
 ## What You Need
 - JDK 11 or later
