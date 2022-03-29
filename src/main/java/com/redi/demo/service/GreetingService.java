@@ -2,6 +2,7 @@ package com.redi.demo.service;
 
 import com.redi.demo.domain.Greeting;
 import com.redi.demo.domain.GreetingStatistic;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,10 +20,17 @@ public class GreetingService {
 
     private static final int MAX_SIZE = 10;
 
+    private WeatherService weatherService;
+
+    @Autowired
+    public GreetingService(WeatherService weatherService) {
+        this.weatherService = weatherService;
+    }
+
     public Greeting greet(String name) {
         validateGreetSize(name);
         storeGreetStatistic(name);
-        return new Greeting(counter.incrementAndGet(), "Hello, " + name + "!");
+        return new Greeting(counter.incrementAndGet(), "Hello, " + name + "!, today the weather is: " + weatherService.getWeather());
     }
 
     public List<GreetingStatistic> getStatistics() {

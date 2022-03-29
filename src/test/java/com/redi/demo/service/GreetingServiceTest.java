@@ -1,6 +1,5 @@
 package com.redi.demo.service;
 
-import com.redi.demo.controller.GreetingController;
 import com.redi.demo.domain.Greeting;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mockito;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,14 +16,19 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 class GreetingServiceTest {
 
     GreetingService greetingService;
 
+    WeatherService weatherService = Mockito.mock(WeatherService.class);
+
     @BeforeEach
     public void setup() {
-        greetingService = new GreetingService();
+        Mockito.reset(weatherService);
+        when(weatherService.getWeather()).thenReturn("very good");
+        greetingService = new GreetingService(weatherService);
     }
 
     @Test
@@ -35,7 +40,7 @@ class GreetingServiceTest {
         Greeting result = greetingService.greet(greetName);
 
         //Assert
-        assertThat(result.getContent()).isEqualTo("Hello, testing!");
+        assertThat(result.getContent()).contains("Hello, testing!");
     }
 
     @Test
@@ -78,7 +83,7 @@ class GreetingServiceTest {
         Greeting result = greetingService.greet(greetName);
 
         //Arrange
-        assertThat(result.getContent()).isEqualTo("Hello, " + greetName + "!");
+        assertThat(result.getContent()).contains("Hello, " + greetName + "!");
     }
 
     @MethodSource("data")
@@ -90,7 +95,7 @@ class GreetingServiceTest {
         Greeting result = greetingService.greet(greetName);
 
         //Arrange
-        assertThat(result.getContent()).isEqualTo("Hello, " + greetName + "!");
+        assertThat(result.getContent()).contains("Hello, " + greetName + "!");
     }
 
     public static String[] data() {

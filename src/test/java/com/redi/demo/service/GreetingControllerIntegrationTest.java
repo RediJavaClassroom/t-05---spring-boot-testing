@@ -23,6 +23,6 @@ class GreetingControllerIntegrationTest {
         Greeting result = greetingController.greet(greetName);
 
 
-        assertThat(result.getContent()).isEqualTo("Hello, testing!");
+        assertThat(result.getContent()).contains("Hello, testing!");
     }
 }

@@ -28,6 +28,6 @@ class GreetingControllerExternalIntegrationTest {
         Greeting result = restTemplate.getForObject(requestUrl, Greeting.class);
 
         //Assert
-        assertThat(result.getContent()).isEqualTo("Hello, testing!");
+        assertThat(result.getContent()).contains("Hello, testing!");
     }
 }
