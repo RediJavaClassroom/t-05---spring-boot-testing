@@ -164,3 +164,97 @@ class GreetingServiceTest {
     }
 }
 ```
+## Mockito
+sometimes we will have a complex graph of dependencies in our classes for these cases we don't 
+want to have to instantiate every single dependency of our dependencies, instead we would like to have control over our tests by using mocks.
+
+Mockito is one of the most famous libraries for mocking in java.
+```java
+class GreetingControllerMockingTest {
+
+    GreetingController greetingController;
+
+    GreetingService greetingService = Mockito.mock(GreetingService.class);
+
+    @BeforeEach
+    public void setup() {
+        Mockito.reset(greetingService);
+        greetingController = new GreetingController(greetingService);
+    }
+
+    @Test
+    public void testGreetShouldGreatWithName() {
+        //Arrange
+        String greetName = "testing";
+        Greeting mockResult = new Greeting(1L, "something random!");
+        when(greetingService.greet(greetName)).thenReturn(mockResult);
+
+        //Act
+        Greeting result = greetingController.greet(greetName);
+
+        //Assert
+        assertThat(result.getContent()).isEqualTo("something random!");
+        verify(greetingService).greet(greetName);
+    }
+}
+```
+
+it allows us to create fake versions of our test class dependencies and control how they behave to generate different use case scenarios.
+
+## Spring Tests
+Spring tests let us test the application running, Spring will make sure to start the entire spring context for us, it will start the entire web server if we want to test entirely our application.
+
+this is good for integration testing. have in mind this will be closes to you hitting directly the endpoints of your application.
+
+also have in mind that this are costly tests and therefore run slower than unit tests.
+```java
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class GreetingControllerIntegrationTest {
+
+    @Autowired
+    GreetingController greetingController;
+
+    @Test
+    public void testGreetShouldGreatWithName() {
+        //Arrange
+        String greetName = "testing";
+
+        //Act
+        Greeting result = greetingController.greet(greetName);
+
+
+        assertThat(result.getContent()).isEqualTo("Hello, testing!");
+    }
+}
+```
+## Integration tests using restTemplate
+Rest template allow us to simulate a request coming from the external world of our application.
+for this we are going to use the annotation `@LocalServerPort` to know which port our application is running locally,
+this is because spring will try to allocate a randomPort this is a best practice, 
+in case you want to run test cases in parallel.
+
+restTemplate is a class that allow us to make calls to our web application and get the response in a serialised object.
+```java
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class GreetingControllerExternalIntegrationTest {
+
+    @LocalServerPort
+    private int port;
+
+    @Autowired
+    private TestRestTemplate restTemplate;
+
+    @Test
+    public void greetingShouldReturnDefaultMessage() throws Exception {
+        //Arrange
+        String greetName = "testing";
+        String requestUrl = "http://localhost:" + port + "/greeting?name=" + greetName;
+
+        //Act
+        Greeting result = restTemplate.getForObject(requestUrl, Greeting.class);
+
+        //Assert
+        assertThat(result.getContent()).isEqualTo("Hello, testing!");
+    }
+}
+```
